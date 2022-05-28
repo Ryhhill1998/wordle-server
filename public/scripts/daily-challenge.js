@@ -8,37 +8,39 @@ const chosenWord = $(".daily-word").text();
 const chosenLetters = chosenWord.split("");
 console.log(chosenWord);
 
-let scoresChart = "";
+let scoresChart;
 
 const date = new Date();
 const shortDate = date.toLocaleDateString("en-GB");
 const shortDateStarted = shortDate + " started";
 const shortDateCompleted = shortDate + " completed";
 
+console.log("binary search enabled");
 
-// Set up remaining game variables
-// Create variables not held in localStorage
+// Set up remaining game letiables
+// Create letiables not held in localStorage
 let userGuess = [];
 let feedbackPresent = false;
 let chartColours = ["grey", "grey", "grey", "grey", "grey", "grey"];
 const letterKeys = $(".letter-key").text();
 
-// Obtain other variables from local localStorage
+// Obtain other letiables from local localStorage
 // Get game colours
 let colour1 = JSON.parse(localStorage.getItem("colour1")) ?? "blue";
 let colour2 = JSON.parse(localStorage.getItem("colour2")) ?? "yellow";
 
 // Determine if daily challenge started
+let gameRound;
 const challengeStarted = JSON.parse(localStorage.getItem(shortDateStarted)) ?? "N";
 if (challengeStarted === "Y") {
   // Find game round user reached
-  var gameRound = parseInt(JSON.parse(localStorage.getItem("gameRound")));
+  gameRound = parseInt(JSON.parse(localStorage.getItem("gameRound")));
   // Load entered tiles
   loadTiles();
   // Load entered keys
   loadKeys();
 } else {
-  var gameRound = 1;
+  gameRound = 1;
 }
 
 // Get score for daily challenge today
@@ -73,9 +75,10 @@ $(".card-1-letter-1").addClass(colour1);
 $(".card-2-letter-3").addClass(colour2);
 
 // Determine if daily challenge completed
+let gameOn;
 const challengeCompleted = JSON.parse(localStorage.getItem(shortDateCompleted)) ?? "N";
 if (challengeCompleted === "Y") {
-  var gameOn = false;
+  gameOn = false;
   chartColours[scoreToday - 1] = $("#o-heading").css("color");
   createChart(dailyChallengeScoreDistribution, chartColours);
   showStats();
@@ -83,7 +86,7 @@ if (challengeCompleted === "Y") {
   $("#score-chart").fadeIn(300);
   $("#main-body").css("opacity", 0.5);
 } else {
-  var gameOn = true;
+  gameOn = true;
 }
 
 
@@ -113,7 +116,7 @@ $(".dropdown-options").hover(function() {
 
 
 // Change border colour of each scheme option when hovered cover
-var hoveredScheme = "";
+let hoveredScheme = "";
 
 $(".scheme").hover(function() {
 
@@ -135,7 +138,7 @@ $(".scheme").hover(function() {
 
 
 // Show popups when correct nav-tag is clicked
-var popupPage = "";
+let popupPage = "";
 
 $(".nav-tag").click(function() {
   gameOn = false;
@@ -192,13 +195,13 @@ $("#game-stats").click(function() {
 });
 
 // Change game theme depending upon the colour scheme clicked on and close popup when scheme selected
-var newColour1 = "";
-var newColour2 = "";
+let newColour;
+let newColour2;
 
 $(".scheme").click(function() {
 
-  var oldColour1 = colour1;
-  var oldColour2 = colour2;
+  let oldColour1 = colour1;
+  let oldColour2 = colour2;
 
   if ($(this).hasClass("scheme-1")) {
     newColour1 = "blue";
@@ -221,9 +224,9 @@ $(".scheme").click(function() {
     $(".card-2-letter-3").removeClass(oldColour2);
     $(".card-2-letter-3").addClass(newColour2);
 
-    var keyArray = $(".letter-key").text().split("");
+    let keyArray = $(".letter-key").text().split("");
     keyArray.forEach(function(letter) {
-      var key = $("#" + letter);
+      let key = $("#" + letter);
       if (key.hasClass(oldColour1)) {
         key.removeClass(oldColour1);
         key.addClass(newColour1)
@@ -233,9 +236,9 @@ $(".scheme").click(function() {
       }
     });
 
-    for (var j = 1; j < gameRound; j++) {
-      for (var i = 1; i < 7; i++) {
-        var cardBack = $(".back-row-" + j + "-letter-" + i);
+    for (let j = 1; j < gameRound; j++) {
+      for (let i = 1; i < 7; i++) {
+        let cardBack = $(".back-row-" + j + "-letter-" + i);
         if (cardBack.hasClass(oldColour1)) {
           cardBack.removeClass(oldColour1);
           cardBack.addClass(newColour1);
@@ -277,8 +280,8 @@ $(".letter-key").click(function() {
 
     let letter = userGuess.length + 1;
     let letterEntered = $(this).text();
-    var guessSquare = $(".front-row-" + gameRound + "-letter-" + letter);
-    var answerSquare = $(".back-row-" + gameRound + "-letter-" + letter);
+    let guessSquare = $(".front-row-" + gameRound + "-letter-" + letter);
+    let answerSquare = $(".back-row-" + gameRound + "-letter-" + letter);
 
     // Add letters guessed by user into guess squares and answer squares
     guessSquare.text(letterEntered);
@@ -300,8 +303,8 @@ $("#del").click(function() {
     let letter = userGuess.length;
 
     if (letter > 0) {
-      var guessSquare = $(".front-row-" + gameRound + "-letter-" + letter);
-      var answerSquare = $(".back-row-" + gameRound + "-letter-" + letter);
+      let guessSquare = $(".front-row-" + gameRound + "-letter-" + letter);
+      let answerSquare = $(".back-row-" + gameRound + "-letter-" + letter);
 
       // Remove letters from guess and answer squares
       guessSquare.text("");
@@ -328,8 +331,9 @@ $("#enter").click(function() {
     if (userGuess.length === 5) {
 
       let guessedWord = userGuess.join("");
+      let lowerCaseGuess = guessedWord.toLowerCase();
 
-      if (wordList.includes(guessedWord.toLowerCase())) {
+      if (binarySearch(wordList, lowerCaseGuess)) {
         checkGuess();
 
         if (gameRound === 7 && guessedWord != chosenWord) {
@@ -374,14 +378,14 @@ function incorrectSubmission(response) {
 // Function to check user guess against chosen wordList, the colour is changed, the tiles are flipped and game round increased
 function checkGuess() {
 
-  var chosenLettersCopy = [...chosenLetters];
+  let chosenLettersCopy = [...chosenLetters];
 
   // Turn correct letters in right place blue
-  for (var i = 0; i < 5; i++) {
+  for (let i = 0; i < 5; i++) {
 
-    var answerSquare = $(".back-row-" + gameRound + "-letter-" + (i + 1));
-    var guessedLetter = userGuess[i];
-    var keyPressed = $("#" + guessedLetter);
+    let answerSquare = $(".back-row-" + gameRound + "-letter-" + (i + 1));
+    let guessedLetter = userGuess[i];
+    let keyPressed = $("#" + guessedLetter);
 
     if (chosenLettersCopy.includes(guessedLetter) && guessedLetter === chosenLetters[i]) {
       answerSquare.addClass(colour1);
@@ -389,36 +393,36 @@ function checkGuess() {
         keyPressed.removeClass(colour2);
       }
       keyPressed.addClass(colour1);
-      var letterIndex = chosenLettersCopy.indexOf(guessedLetter);
+      let letterIndex = chosenLettersCopy.indexOf(guessedLetter);
       chosenLettersCopy.splice(letterIndex, 1);
     }
 
   };
 
   // Turn correct letters in wrong place yellow
-  for (var i = 0; i < 5; i++) {
+  for (let i = 0; i < 5; i++) {
 
-    var answerSquare = $(".back-row-" + gameRound + "-letter-" + (i + 1));
-    var guessedLetter = userGuess[i];
-    var keyPressed = $("#" + guessedLetter);
+    let answerSquare = $(".back-row-" + gameRound + "-letter-" + (i + 1));
+    let guessedLetter = userGuess[i];
+    let keyPressed = $("#" + guessedLetter);
 
     if (chosenLettersCopy.includes(guessedLetter) && !answerSquare.hasClass(colour1)) {
       answerSquare.addClass(colour2);
       if (!keyPressed.hasClass(colour1)) {
         keyPressed.addClass(colour2);
       }
-      var letterIndex = chosenLettersCopy.indexOf(guessedLetter);
+      let letterIndex = chosenLettersCopy.indexOf(guessedLetter);
       chosenLettersCopy.splice(letterIndex, 1);
     }
 
   };
 
   // Turn incorrect letters black
-  for (var i = 0; i < 5; i++) {
+  for (let i = 0; i < 5; i++) {
 
-    var answerSquare = $(".back-row-" + gameRound + "-letter-" + (i + 1));
-    var guessedLetter = userGuess[i];
-    var keyPressed = $("#" + guessedLetter);
+    let answerSquare = $(".back-row-" + gameRound + "-letter-" + (i + 1));
+    let guessedLetter = userGuess[i];
+    let keyPressed = $("#" + guessedLetter);
 
     if (!chosenLettersCopy.includes(guessedLetter) && !answerSquare.hasClass(colour1) && !answerSquare.hasClass(colour2)) {
       answerSquare.addClass("black");
@@ -454,7 +458,7 @@ function gameLost() {
 
   gameOn = false;
 
-  for (var i = 1; i < 7; i++) {
+  for (let i = 1; i < 7; i++) {
     $(".back-row-6-letter-" + i).addClass("game-lost");
   };
 
@@ -472,7 +476,7 @@ function gameLost() {
 
   localStorage.setItem(shortDateCompleted, JSON.stringify("Y"));
 
-  var winPercentage = Math.round(100 * (dailyChallengeScoresList.length / dailyChallengeTimesPlayed));
+  let winPercentage = Math.round(100 * (dailyChallengeScoresList.length / dailyChallengeTimesPlayed));
 
   $(".games-played").text(dailyChallengeTimesPlayed);
   $(".win-percent").text(winPercentage);
@@ -495,8 +499,8 @@ function gameWon() {
 
   chartColours[scoreToday - 1] = $("#o-heading").css("color");
 
-  var responses = ["Unbelievable!", "Amazing!", "Great!", "Well done!", "Nice!", "Finally!"];
-  var response = responses[scoreToday - 1];
+  let responses = ["Unbelievable!", "Amazing!", "Great!", "Well done!", "Nice!", "Finally!"];
+  let response = responses[scoreToday - 1];
 
   gameOn = false;
   jumpTiles();
@@ -554,9 +558,9 @@ function animateLetterPressed(letter) {
 // Set up flip cards animation
 function setAllCards() {
 
-  for (var j = 1; j < 7; j++) {
-    for (var i = 1; i < 6; i++) {
-      var card = $("#card.row-" + j + "-letter-" + i);
+  for (let j = 1; j < 7; j++) {
+    for (let i = 1; i < 6; i++) {
+      let card = $("#card.row-" + j + "-letter-" + i);
       card.flip({
         axis: "x",
         trigger: "manual",
@@ -572,8 +576,8 @@ function setAllCards() {
 setAllCards();
 
 function flipLetters() {
-  var i = gameRound;
-  var delay = 300;
+  let i = gameRound;
+  let delay = 300;
   $("#card.row-" + i + "-letter-1").flip(true);
   setTimeout(function() {
     $("#card.row-" + i + "-letter-2").flip(true);
@@ -592,9 +596,9 @@ function flipLetters() {
 // Tile jump animation
 function jumpTiles() {
 
-  var i = gameRound - 1;
-  var start = 1200;
-  var delay = 100;
+  let i = gameRound - 1;
+  let start = 1200;
+  let delay = 100;
   setTimeout(function() {
     $("#card.row-" + i + "-letter-1").animate({top: -40}, 300).animate({top: 0}, 100);
   }, start);
@@ -618,7 +622,7 @@ function jumpTiles() {
 // Create chart Function
 function createChart(scores, colours) {
 
-    var myScoresChart = {
+    let myScoresChart = {
         type: 'bar',
         data: {
           labels: ["1", "2", "3", "4", "5", "6"],
@@ -681,7 +685,7 @@ function createChart(scores, colours) {
         },
     };
 
-    var ctx = $('#myChart');
+    let ctx = $('#myChart');
     scoresChart = new Chart(ctx, myScoresChart);
 
 };
@@ -690,10 +694,11 @@ function createChart(scores, colours) {
 // Display game statistics
 function showStats() {
 
+  let winPercentage;
   if (dailyChallengeTimesPlayed > 0) {
-    var winPercentage = Math.round(100 * (dailyChallengeScoresList.length / dailyChallengeTimesPlayed));
+    winPercentage = Math.round(100 * (dailyChallengeScoresList.length / dailyChallengeTimesPlayed));
   } else {
-    var winPercentage = 0;
+    winPercentage = 0;
   }
 
   $(".games-played").text(dailyChallengeTimesPlayed);
@@ -707,7 +712,7 @@ function showStats() {
 // Save tiles to localStorage in case of refresh
 function saveTiles() {
 
-  for (var j = 1; j < 6; j++) {
+  for (let j = 1; j < 6; j++) {
     let cardBack = ".back-row-" + gameRound + "-letter-" + j;
     let cardBackText = $(cardBack).text();
     let cardBackColourClass = "";
@@ -728,7 +733,7 @@ function saveTiles() {
 // Save keys entered
 function saveKeys() {
 
-  for (var i = 0; i < letterKeys.length; i++) {
+  for (let i = 0; i < letterKeys.length; i++) {
     let letter = letterKeys[i];
     let letterSelector = $("#" + letter);
     let letterColourClass = "";
@@ -748,8 +753,8 @@ function saveKeys() {
 // Reload entered tiles if game started and then refreshed
 function loadTiles() {
 
-  for (var i = 1; i < gameRound; i++) {
-    for (var j = 1; j < 6; j++) {
+  for (let i = 1; i < gameRound; i++) {
+    for (let j = 1; j < 6; j++) {
       let cardBack = ".back-row-" + i + "-letter-" + j;
       let cardFront = ".front-row-" + i + "-letter-" + j;
       let cardBackText = JSON.parse(localStorage.getItem(cardBack + " text")) ?? "";
@@ -770,7 +775,7 @@ function loadTiles() {
 // Reload entered letter kets if game started and then refreshed
 function loadKeys() {
 
-  for (var i = 0; i < letterKeys.length; i++) {
+  for (let i = 0; i < letterKeys.length; i++) {
     let letter = letterKeys[i];
     let letterSelector = $("#" + letter);
     let letterColourClass = JSON.parse(localStorage.getItem(letter + " colourClass"));
@@ -783,3 +788,24 @@ function loadKeys() {
   }
 
 };
+
+
+// Binary search algorithm to search for word in wordList
+function binarySearch(array, value) {
+
+  let midIndex = Math.floor(array.length / 2);
+  let midValue = array[midIndex];
+  let comparison = value.localeCompare(midValue);
+
+  if (comparison === 0) {
+    return true;
+  } else if (array.length === 1) {
+    return false;
+  } else if (comparison < 0) {
+    array = array.slice(0, midIndex);
+  } else {
+    array = array.slice(midIndex);
+  }
+
+  return binarySearch(array, value);
+}

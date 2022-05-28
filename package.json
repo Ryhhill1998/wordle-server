@@ -1,0 +1,21 @@
+{
+  "dependencies": {
+    "body-parser": "^1.19.2",
+    "ejs": "^3.1.6",
+    "express": "^4.17.3",
+    "mongoose": "^6.2.8"
+  },
+  "engines": {
+    "node": "16.14.0"
+  },
+  "name": "wordle-server",
+  "version": "1.0.0",
+  "description": "My wordle server",
+  "main": "app.js",
+  "devDependencies": {},
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "Ryan Henzell-Hill",
+  "license": "ISC"
+}
